@@ -1,0 +1,19 @@
+bayesian classifier:
+
+count words appearing in happy set
+and do same for sad set
+
+get different distributions for happy and sad
+
+given input sentence, what is probability of words in sentence being happy and prob of being sad 
+	-> compare sentiments and classify sentiment
+
+
+To DoL
+randomly sort data/preprocess data -> write to csv for speed
+map data/features to news type [2 if fake, 1 if bs, hate, bias, 0 else]
+do feature extraction [countvectorizer]
+do forest classify/logistical regression
+cross validate [train on 75% test on 25%]
+put in regular python file -> compile?
+chrome extension
