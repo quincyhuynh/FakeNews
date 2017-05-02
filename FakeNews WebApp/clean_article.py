@@ -59,7 +59,6 @@ def title_cleaner(title):
     title = ' '.join([word for word in title])
     return(title)
 
-wnl = WordNetLemmatizer()
 def get_wordnet_pos(treebank_tag):
     '''Treebank to wordnet POS tag'''
     if treebank_tag.startswith('J'):
@@ -72,3 +71,13 @@ def get_wordnet_pos(treebank_tag):
         return wordnet.ADV
     else:
         return 'n' #basecase POS
+
+def preprocess_data(df, wnl):
+    title_clean = title_cleaner(df['title'][0])
+    text_clean = title_cleaner(df['text'])
+    title_l = pos_tag(title_clean.split())
+    text_l = pos_tag(text_clean.split())
+    # title_clean_wnl = 
+
+
+
