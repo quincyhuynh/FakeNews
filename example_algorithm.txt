@@ -17,3 +17,8 @@ do forest classify/logistical regression
 cross validate [train on 75% test on 25%]
 put in regular python file -> compile?
 chrome extension
+
+
+https://stackoverflow.com/questions/25788151/bringing-a-classifier-to-production
+http://stackoverflow.com/questions/26004670/how-to-use-pickled-classifier-with-countvectorizer-fit-transform-for-labeling
+http://stackoverflow.com/questions/40731271/test-and-train-dataset-has-different-number-of-features

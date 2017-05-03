@@ -26,30 +26,89 @@ app = Flask(__name__)
 # web scraper credentials
 webhoseio.config(token="456af32b-3c58-455d-b9f8-90875bfc8f58")
 
-# set up models
-train_data = pd.read_csv('../train_data.csv')
-y_train_type = pd.read_csv('../y_train_type.csv')
-x_train, x_test, y_train, y_test = train_test_split(train_data, y_train_type, test_size=0.50, random_state=42)
-y_train = y_train['0'].tolist()
-y_test = y_test['0'].tolist()
-forest = RandomForestClassifier(n_estimators = 50)
-forest = forest.fit(x_train, y_train)
+# constructors, helpers and constants
+wnl = WordNetLemmatizer()
+cols = ["uuid", 
+		"ord_in_thread", 
+		"author", 
+		"published", 
+		"title", 
+		"text", 
+		"language", 
+		"crawled", 
+		"site_url", 
+		"country", 
+		"domain_rank", 
+		"thread_title", 
+		"spam_score", 
+		"main_img_url", 
+		"replies_count", 
+		"participants_count", 
+		"likes", 
+		"comments", 
+		"shares", 
+		"type"]
 
-# set up prediction df
-cols = ["uuid", "ord_in_thread", "author", "published", "title", "text", "language", "crawled", "site_url", "country", "domain_rank", "thread_title", "spam_score", "main_img_url", "replies_count", "participants_count", "likes", "comments", "shares", "type"]
-df = pd.DataFrame(columns = cols)
+def title_cleaner(title):
+    title = re.sub('[^a-zA-Z]',' ', title)
+    title = title.lower()
+    title = nltk.word_tokenize(title) 
+    eng_stopwords = set(stopwords.words("english"))
+    title = [w for w in title if not w in eng_stopwords]
+    title = ' '.join([word for word in title])
+    return(title)
 
-# set up cleaning helpers
+def get_wordnet_pos(treebank_tag):
+    '''Treebank to wordnet POS tag'''
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return 'n' #basecase POS
 
+test_data = pd.read_table('Data_3-31.csv')
+test_data = test_data[cols][2:3]
+del test_data['uuid']
+test_data = test_data.reset_index()
+del test_data['index']
+del test_data['thread_title']
+del test_data['spam_score']
+del test_data['main_img_url']
+del test_data['published']
+del test_data['crawled']
+del test_data['type']
+test_data['title'].fillna('', inplace=True)
+test_data['text'].fillna('', inplace=True)
+test_data.fillna(0, inplace=True)
+title = title_cleaner(test_data['title'][0])
+text = title_cleaner(test_data['text'][0])
+title_tag = pos_tag(title.split())
+title_clean_wnl = ' '.join([wnl.lemmatize(w,pos=get_wordnet_pos(t)) for w,t in title_tag])
+text_tag = pos_tag(text.split())
+text_clean_wnl = ' '.join([wnl.lemmatize(w,pos=get_wordnet_pos(t)) for w,t in text_tag])
+le = joblib.load(u'label_encoder.pkl') 
+l = ['country','site_url','author','language']
+for col in l:
+    le.fit(test_data[col])
+    test_data[col] = le.transform(test_data[col])
+    test_data[col] = test_data[col].astype(float)
+test_data['title'] = title_clean_wnl
+test_data['text'] = text_clean_wnl
 
 @app.route('/')
 def hello():
-    return 'hello'
+    return 'Fake News Detector Home Page'
 
 @app.route('/predict', methods=['GET', 'POST'])
 def fake_news():
     article_url = request.args['url']
-    # articled_cleaned = process_article(article_url)
-    x_test_pred = forest.predict(x_test)
-    accuracy  = metrics.accuracy_score(y_test,x_test_pred)
-    return str(request.args['url'])
+	classifier = joblib.load(u'classifier.pkl')
+    prediction = classifier.predict_proba(test_data)[0]
+    prob_fake = str(prediction[2]*100)
+    amount_bias = str(prediction[2]*100)
+    return str(request.args['url']) +  ' ' + str(prob_fake) +  ' ' + str(amount_bias)
