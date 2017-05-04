@@ -1,14 +1,39 @@
 <!DOCTYPE html>
 <html style=''>
 <head>
+<style>
+#frame {
+    background-color: 	#D6D6D6;
+}
+
+#message {
+	text-align: center;
+}
+
+#intro {
+
+	font-family: Gill Sans, Verdana;
+ 	font-size: 13px;
+ 	line-height: 14px;
+ 	text-transform: uppercase;
+ 	letter-spacing: 2px;
+ 	font-weight: bold;
+}
+
+</style>
 <script src='popup.js'></script>
 <script src="sweetalert.min.js"></script>
 
 <link rel="stylesheet" href="sweetalert.css">
 </head>
 <body style="width:400px;">
-<div id='message'>
-	<p id="p_test">Testing extension</p>
+<div id='frame' style='border:1px solid gray; width=400px'>
+	<img src="fake.png" alt="Fake News Pic" style="width:398px;height:100px;">
+	<div id='message' style="height:100">
+		<p id="intro">This article is</p>
+		<p id="resp">Testing extension</p>
+	</div>
+	<img src="fake-bottom.png" alt="Fake News Bottom Pic" style="width:398px;height:100px;">
 </div>
 </body>
 </html>

@@ -16,7 +16,7 @@ function makeRequest(tab_url) {
 			resp = xhr.responseText;
 			chrome.runtime.sendMessage({updatePopup: true, data: resp});
 			console.log(resp);
-			document.getElementById("p_test").innerHTML = resp;
+			document.getElementById("resp").innerHTML = resp;
 			//swal("Hello world!"); 
 	
   		}
