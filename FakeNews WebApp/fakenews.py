@@ -78,13 +78,13 @@ def get_wordnet_pos(treebank_tag):
 def get_title_and_site_url(url):
     # pdb.set_trace()
     extract = client.Extract({"url": url, "best_image": False})
-    title = re.escape(extract['title'])
+    title = extract['title']
     site_url = re.sub('www.', '', urlparse(url).hostname)
     return title, site_url
 
 def extract_article(url):
     title, site_url = get_title_and_site_url(url)
-    output = webhoseio.query("filterWebData", {"q":"thread.title:(" + title + ") site:" + site_url})
+    output = webhoseio.query("filterWebData", {"q":"\"" + title + "\" site:" + site_url})
     post = output["posts"][0]
     thread = post["thread"]
     social = thread["social"]["facebook"]
@@ -156,5 +156,6 @@ def fake_news():
         prediction = classifier.predict_proba(article_df_clean)[0]
         prob_notfake = str(prediction[1]*100)
         return str(prob_notfake) + '%  CERTAINTY'
-    except:
+    except Exception as e:
+        print(e)
         return "Sorry, could not determine trustworthiness of article"
