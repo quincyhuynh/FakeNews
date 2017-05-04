@@ -1,4 +1,4 @@
-var url = "http://quincyhuynh.pythonanywhere.com/predict";
+var url = "http://127.0.0.1:5000/predict";
 
 window.onload=function(){
     chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
