@@ -20,6 +20,7 @@ from flask import Flask, request, jsonify
 import webhoseio
 from aylienapiclient import textapi
 from urllib.parse import urlparse
+import pdb
 import webhoseio
 
 
@@ -75,6 +76,7 @@ def get_wordnet_pos(treebank_tag):
         return 'n' #basecase POS
 
 def get_title_and_site_url(url):
+    # pdb.set_trace()
     extract = client.Extract({"url": url, "best_image": False})
     title = re.escape(extract['title'])
     site_url = re.sub('www.', '', urlparse(url).hostname)
@@ -128,8 +130,8 @@ def clean_article(article_df):
     title_clean_wnl = ' '.join([wnl.lemmatize(w,pos=get_wordnet_pos(t)) for w,t in title_tag])
     text_tag = pos_tag(text.split())
     text_clean_wnl = ' '.join([wnl.lemmatize(w,pos=get_wordnet_pos(t)) for w,t in text_tag])
-    # le = joblib.load(u'label_encoder.pkl')
-    le = joblib.load(u'/home/quincyhuynh/FakeNewsApp/label_encoder.pkl')
+    le = joblib.load(u'label_encoder.pkl')
+    # le = joblib.load(u'/home/quincyhuynh/FakeNewsApp/label_encoder.pkl')
     l = ['country','site_url','author','language']
     for col in l:
         le.fit(article_df_clean[col])
@@ -149,10 +151,10 @@ def fake_news():
         article_url = request.args['url']
         article_df = extract_article(article_url)
         article_df_clean = clean_article(article_df)
-        # classifier = joblib.load(u'classifier.pkl')
-        classifier = joblib.load(u'/home/quincyhuynh/FakeNewsApp/classifier.pkl')
+        classifier = joblib.load(u'classifier.pkl')
+        # classifier = joblib.load(u'/home/quincyhuynh/FakeNewsApp/classifier.pkl')
         prediction = classifier.predict_proba(article_df_clean)[0]
-        prob_notfake = str(100-prediction[1]*100)
-        return str(prob_notfake) + '% trustworthy'
+        prob_notfake = str(prediction[1]*100)
+        return str(prob_notfake) + '%  CERTAINTY'
     except:
         return "Sorry, could not determine trustworthiness of article"
